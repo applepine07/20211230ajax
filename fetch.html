@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fetch</title>
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <style>
+
+        .title{
+            border:1px solid black;
+            width:50%;
+            margin:auto;
+            padding:20px;
+        }
+        #list{
+            display:flex;
+            flex-wrap:wrap;
+        }
+        #list li{
+            width:400px;
+            margin:5px 10px;
+            padding:5px;
+            border:1px solid #999;
+        }
+        #list li div:nth-child(1){
+            font-weight:bolder;
+        }
+        #list li div:nth-child(2){
+            color:pink;
+        }
+        #list li div:nth-child(3){
+            font-size:12px;
+            float:right;
+        }
+        #list li:hover{
+            background-color:lightblue;
+            border:1px solid greenyellow;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="header">Fetch</h1>
+    <div class="title"></div>
+    <h4></h4>
+    <ul id="list"></ul>
+    
+</body>
+</html>
+<script>
+    /********************************************************
+    * 1.api網址  https://kktix.com/events.json
+    * 2.建FETCH請求及實質內容
+    * 3.建立回呼函式(call back function)來處理回應時的各項行為
+    * 4.建立錯誤處理
+    ********************************************************/
+
+    //建立FETCH請求及實質內容
+    // fetch('網址',{物件})
+    fetch('https://kktix.com/events.json',{method:'get'})
+    // 執行上面的之後，再執行以下，
+    .then(function(res){
+        // 請把我的東西以json呈現return到.then(function(res))
+        
+        return res.json()
+    })
+    .then(function(data){
+        //建立回呼函式(call back function)來處理回應時的各項行為
+        $(".title").html(data.title)
+        let list=""
+        data.entry.forEach(function(e,i){
+            //console.log(e.title)
+            list=list+`<li>
+                        <div>${e.title}</div>
+                        <div>${e.summary}</div>
+                        <div>${e.content}</div>
+                        </li>`;
+        });
+        console.log(list)
+        $("#list").html(list)
+        console.log(data)
+    })
+
+
+
+    //建立錯誤處理
+
+  </script>

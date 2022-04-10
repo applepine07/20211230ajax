@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>學生資料管理系統</title>
+  <link rel="shortcut icon" href="#" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <!---匯入要使用的函式庫--->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <h1 class="header"><a href="#" onclick="home()">學生資料管理系統</a></h1>
+  <div class="container">
+
+    <div class="card-columns" id='classlist'></div>
+    <nav id="nav" class='d-flex justify-content-between'></nav>
+    <table id="students" class="table">
+
+
+
+    </table>
+
+  </div>
+
+  <div id="modal"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+    integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+    integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
+<script>
+  /************************************
+  * 1.考慮觸發行為的事件
+  * 2.建立監聽行為
+  * 3.考慮是否需要代入參數
+  * 4.是否會有回傳值？回傳值的功用及處理？
+  * 5.是否需要更新畫面內容？更新畫面的方法？
+  ************************************/
+
+function home(){
+  $("#classlist").show();
+  $("#nav").removeClass('d-flex');
+  $("#nav").hide();
+  $("#students").html("")
+}
+
+  list();
+  function list() {
+    $.get("api/list.php", (list) => {
+
+      let classlist=JSON.parse(list)
+      let card;
+      classlist.forEach((c,i)=>{
+        card=`<a href="#" onclick="loadStudents('${c.班級}')">
+              <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">${c.班級}</h5>
+                    <p class="card-text">${c.人數}</p>
+                  </div>
+                </div>
+                </a>`;
+        $("#classlist").append(card)
+      })
+      
+      
+    })
+  }
+  function showNav() {
+    $("#nav").html("");
+    $("#nav").addClass('d-flex');
+    $.get("api/list.php", (list) => {
+
+      let classlist=JSON.parse(list)
+      let card;
+      classlist.forEach((c,i)=>{
+        btn=`<a href="#" class='mx-2 bordered rounded' onclick="loadStudents('${c.班級}')">
+              ${c.班級}
+                </a>`;
+        $("#nav").append(btn);
+        
+      })   
+      
+      $("#nav").prepend(`<input type='text' name='query' id='query' placeholder='輸入學生姓名'>
+                         <button onclick='query()'>查詢</button>`);
+      $("#nav").prepend(`<button class='btn btn-success' onclick='create()'>新增學生</button>`);
+
+    })
+  }
+
+  //載入班級學員列表
+  function loadStudents(classnum){
+
+    $.getJSON("api/load_student.php",{'classroom':classnum},(stulist)=>{
+        //console.log(stulist)
+        //stulist.forEach(function(stu,idx){})
+        //stulist.forEach((stu,idx)=>{})
+        showData(stulist)
+        $("#classlist").hide();
+        showNav();
+        
+    })
+  }
+
+  //table顯示學生專用函式
+  function showData(array){
+    $("#students").html("");
+    
+    let data;
+    if(typeof array=='object'){
+      data=array
+    }else{
+      data=JSON.parse(array)  
+    }
+    
+    let tr="";
+        data.forEach((stu,idx)=>{
+          tr=`
+              <tr>
+                <td>${stu.uni_id}</td>
+                <td>${stu.seat_num}</td>
+                <td>${stu.name}</td>
+                <td>${stu.birthday}</td>
+                <td>${stu.national_id}</td>
+                <td>
+                  <button class='btn btn-primary' onclick='showStu(${stu.id})'>編輯</button>
+                  <button class='btn btn-danger' onclick='del(${stu.id})'>刪除</button>
+
+                </td>
+              </tr>
+          `;
+          $("#students").append(tr);
+        })
+
+  }
+
+
+  //新增資料的函式
+  // 載入api的bootstrap modal
+  function create() {
+    // 這裡不用get而用load來載入頁面，因為載入而已不用回傳不用用到get
+    $("#modal").load("api/show_blank_form.php",()=>{
+      // bootstrap特定的秀出modal用法
+      $("#blankForm").modal("show")
+    })
+
+  }
+
+  function add(){
+    // 在物件裡面區隔每個元素的方式是用逗號
+    let stu={
+        name:$("#name").val(),
+        classroom:$("#classroom").val(),
+        birthday:$("#birthday").val(),
+        seat_num:$("#num").val()
+    }
+
+    // 送資料(stu物件，經post會轉陣列)去給api後，得到的東西存在res變數裡
+    $.post("api/insert.php",stu,(res)=>{
+      // 這樣api處理有啥錯誤訊息也會存在res，然後我們在console也看得到
+      console.log(res)
+      // 然後將modal藏起來
+      $("#blankForm").modal("hide")
+
+      // 再重載一次資料庫資料更新使用者列表
+      loadStudents($("#classroom").val())
+    })
+  }
+
+
+  //查詢資料的函式
+  function query() {
+    //console.log($("#query").val())
+    let q=$("#query").val();
+    $.get("api/query.php",{q},(items)=>{
+      showData(items)
+    })
+  }
+
+  //編輯資料的函式
+  function showStu(id) {
+    $.get("api/show_student.php",{id},(modal)=>{
+        $("#modal").html(modal)
+        $("#editForm").modal("show")
+    })
+  }
+  function update(id) {
+    let stu={
+        id:id,
+        name:$("#name").val(),
+        classroom:$("#classroom").val(),
+        birthday:$("#birthday").val(),
+        seat_num:$("#num").val()
+    }
+
+    $.post("api/update.php",stu,(res)=>{
+      console.log(res)
+      $("#editForm").modal("hide")
+      loadStudents($("#classroom").val())
+    })
+  }
+
+  //刪除資料的函式
+  function del(id) {
+    // 如果這個動作會動到資料庫資料表的內容，一律用post
+    $.post("api/delete.php",{id},(classnum)=>{
+      // 後端刪除該筆資料後，請回傳給我是哪班的並存在classnum變數裡，我要用來去重load該班學生列表
+      loadStudents(classnum)
+    })
+  }
+
+</script>

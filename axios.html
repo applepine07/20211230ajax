@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>axios</title>
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <style>
+        .title {
+            border: 1px solid black;
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        #list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #list li {
+            width: 400px;
+            margin: 5px 10px;
+            padding: 5px;
+            border: 1px solid #999;
+        }
+
+        #list li div:nth-child(1) {
+            font-weight: bolder;
+        }
+
+        #list li div:nth-child(2) {
+            color: pink;
+        }
+
+        #list li div:nth-child(3) {
+            font-size: 12px;
+            float: right;
+        }
+
+        #list li:hover {
+            background-color: lightblue;
+            border: 1px solid greenyellow;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="header">axios</h1>
+    <div class="title"></div>
+    <h4></h4>
+    <ul id="list"></ul>
+
+</body>
+
+</html>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    /********************************************************
+    * 1.api網址  https://kktix.com/events.json
+    * 2.發起一個axios請求
+    * 3.建立回呼函式(call back function)來處理回應時的各項行為
+    * 4.建立錯誤處理
+    ********************************************************/
+
+    //發起一個axios請求
+    axios.get('https://kktix.com/events.json')
+        // ↑和jquery像的部分
+        // ↓和fetch像的部分
+        .then((res) => {
+            console.log(res)
+            // res物件中，data屬性的title，以下用到jquery，故要記得引入jquery函式
+            $(".title").html(res.data.title)
+            let list = ""
+            res.data.entry.forEach(function (e, i) {
+                //console.log(e.title)
+                list = list + `<li>
+                        <div>${e.title}</div>
+                        <div>${e.summary}</div>
+                        <div>${e.content}</div>
+                        </li>`;
+            });
+
+            $("#list").html(list)
+        })
+
+//建立回呼函式(call back function)來處理回應時的各項行為
+
+
+//建立錯誤處理
+
+</script>

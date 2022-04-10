@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>XMLHttpRequest</title>
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <style>
+        .title {
+            border: 1px solid black;
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        #list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #list li {
+            width: 400px;
+            margin: 5px 10px;
+            padding: 5px;
+            border: 1px solid #999;
+        }
+
+        #list li div:nth-child(1) {
+            font-weight: bolder;
+        }
+
+        #list li div:nth-child(2) {
+            color: pink;
+        }
+
+        #list li div:nth-child(3) {
+            font-size: 12px;
+            float: right;
+        }
+
+        #list li:hover {
+            background-color: lightblue;
+            border: 1px solid greenyellow;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="header"> </h1>
+    <div class="title"></div>
+    <h4></h4>
+    <ul id="list">
+
+    </ul>
+    <div style="width:100px;height:100px;">rqyt fafasdfsdaf</div>
+</body>
+
+</html>
+<script>
+    /********************************************************
+    * 1.api網址  https://kktix.com/events.json
+    * 2.宣告一個XMLHttpRequest物件
+    * 3.建立請求的各項設定及實質內容
+    * 4.建立得到回應時的各項行為
+    * 5.送出請求
+    ********************************************************/
+
+    //宣告一個XMLHttpRequest物件
+    // new 一個物件出來，指派給變數xhr
+    let xhr = new XMLHttpRequest;
+
+    //建立請求的各項設定及實質內容
+    // xhr物件裡有一個open方法(method,url,同步狀況預設為true不加也沒關係)
+    xhr.open('GET', 'https://kktix.com/events.json', true)
+
+    //建立得到回應時的各項設定及行為
+    xhr.onload = () => {
+        // 在xhr物件中用getResponseHeader方法取得content-type內容後，指派給變數type
+        let type = xhr.getResponseHeader('Content-Type');
+        let status = xhr.status
+        // JSON是一個物件(綠色是物件)，用物件的parse方法將得到的xhr responsetext從json字串轉成js的數值或物件
+        let res = JSON.parse(xhr.responseText);
+        // 請把res中的title，放到html文件中class為title的內容區域去
+        $(".title").html(res.title)
+        let list = ""
+        // entry是實體的意思，指的是data本身，以下的entry是陣列(應該說是，已轉成陣列)
+        // 陣列才有方法forEach
+        // forEach(function(當前的值，索引值){       });
+        res.entry.forEach(function (e, i) {
+            //console.log(e.title)
+            // 上引號可引文字模板，然後${e.title}是在文字模板裡放變數的作法，和php用大括號把陣列包起來是一樣的作法
+            list = list + `<li>
+                        <div>${e.title}</div>
+                        <div>${e.summary}</div>
+                        <div>${e.content}</div>
+                        </li>`;
+        });
+        console.log(list)
+        $("#list").html(list)
+        console.log(type, status, res);
+    }
+
+    //送出請求
+    // 建議先打這段不然很容易忘記
+    // 方法是post才需要打成xhr.send(context);
+    // 最有名忘記寫這行的人是php作者(  •̀ω•́ ) 
+    xhr.send();
+</script>
